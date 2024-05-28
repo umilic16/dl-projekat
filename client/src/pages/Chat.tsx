@@ -36,14 +36,12 @@ const Chat: FunctionComponent = () => {
 			})
 				.then((response) => response.json())
 				.then((data) => {
-					// let text = data.response.data;
-					// if (data.response.type === "link") {
-					// 	text = "Playing " + text + " ♬";
-					// 	window.open(data.response.link);
-					// }
+					let text = data.response.entities;
+					text = "Playing " + text + " ♬";
+					window.open(data.response.link);
 					const newResponse: MessageType = {
 						user: "assistant",
-						text: data.response,
+						text: text,
 					};
 					setMessages((prevMessages) => [...prevMessages, newResponse]);
 					setIsRequestPending(false);
