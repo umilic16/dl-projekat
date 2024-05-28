@@ -31,7 +31,7 @@ def search_youtube(message):
 app = Flask(__name__)
 CORS(app)
 
-ner_model = spacy.load("./named_entity_recognition/models/v1.0/model-best")
+ner_model = spacy.load("./named_entity_recognition/model")
 
 load_dotenv()
 youtube_api_key = os.getenv("YOUTUBE_API_KEY")
