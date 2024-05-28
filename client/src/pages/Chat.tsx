@@ -1,12 +1,33 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useRef, useState } from "react";
+import Message from "../components/Message";
 import styles from "./Chat.module.css";
 
+type MessageType = {
+	user: string;
+	text: string;
+};
+
 const Chat: FunctionComponent = () => {
+	const [messages, setMessages] = useState<MessageType[]>([]);
 	const [inputValue, setInputValue] = useState("");
 	const [isRequestPending, setIsRequestPending] = useState(false);
+	const chatContainerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (chatContainerRef.current !== null) {
+			chatContainerRef.current.scrollTop =
+				chatContainerRef.current.scrollHeight;
+		}
+	}, [messages]);
 
 	const handleSendMessage = () => {
 		if (inputValue.trim() !== "" && !isRequestPending) {
+			const newMessage: MessageType = {
+				user: "user",
+				text: inputValue,
+			};
+
+			setMessages((prevMessages) => [...prevMessages, newMessage]);
 			setIsRequestPending(true);
 			fetch("http://127.0.0.1:5000", {
 				method: "POST",
@@ -15,7 +36,16 @@ const Chat: FunctionComponent = () => {
 			})
 				.then((response) => response.json())
 				.then((data) => {
-					// TO:DO dodaj poruku
+					// let text = data.response.data;
+					// if (data.response.type === "link") {
+					// 	text = "Playing " + text + " ♬";
+					// 	window.open(data.response.link);
+					// }
+					const newResponse: MessageType = {
+						user: "assistant",
+						text: data.response,
+					};
+					setMessages((prevMessages) => [...prevMessages, newResponse]);
 					setIsRequestPending(false);
 				})
 				.catch((error) => {
@@ -40,7 +70,12 @@ const Chat: FunctionComponent = () => {
 	return (
 		<div className={styles.content}>
 			<div className={styles.chat}>
-				<div className={styles.chatBox}></div>
+				<div className={styles.chatBox} ref={chatContainerRef}>
+					{messages.map((message, index) => (
+						<Message key={index} user={message.user} text={message.text} />
+					))}
+					{isRequestPending && <Message user="assistant" text="..." />}
+				</div>
 				<div className={styles.bottomContainer}>
 					<div className={styles.searchBar}>
 						<input
